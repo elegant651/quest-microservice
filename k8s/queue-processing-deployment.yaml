@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-processing
+spec:
+  selector:
+    matchLabels:
+      app: queue-processing
+  template:
+    metadata:
+      labels:
+        app: queue-processing
+    spec:
+      containers:
+      - name: queue-processing
+        image: queue-processing:latest
+        ports:
+        - containerPort: 8082
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGO_URI
+          value: "mongodb://mongodb:27017"
+        - name: DB_NAME
+          value: "bentest"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue-processing
+spec:
+  selector:
+    app: queue-processing
+  ports:
+  - port: 8082
+    targetPort: 8082

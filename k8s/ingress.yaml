@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /user_auth
+        pathType: Prefix
+        backend:
+          service:
+            name: user-auth
+            port:
+              number: 8081
+      - path: /queue_processing
+        pathType: Prefix
+        backend:
+          service:
+            name: queue-processing
+            port:
+              number: 8082
+      - path: /queue_catalog
+        pathType: Prefix
+        backend:
+          service:
+            name: queue-catalog
+            port:
+              number: 8083

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-catalog
+spec:
+  selector:
+    matchLabels:
+      app: queue-catalog
+  template:
+    metadata:
+      labels:
+        app: queue-catalog
+    spec:
+      containers:
+      - name: queue-catalog
+        image: queue-catalog:latest
+        ports:
+        - containerPort: 8083
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGO_URI
+          value: "mongodb://mongodb:27017"
+        - name: DB_NAME
+          value: "bentest"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue-catalog
+spec:
+  selector:
+    app: queue-catalog
+  ports:
+  - port: 8083
+    targetPort: 8083
+---

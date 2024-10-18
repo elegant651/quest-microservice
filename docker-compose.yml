@@ -1,0 +1,63 @@
+version: '0.1'
+services:
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  user_auth:
+    build:
+      context: ./user-auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - "mongodb"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=bentest
+
+  queue_processing:
+    build:
+      context: ./queue-processing-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - "mongodb"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=bentest
+
+  queue_catalog:
+    build:
+      context: ./queue-catalog-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      - "mongodb"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=bentest
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "85:85"
+    depends_on:
+      - user_auth
+      - queue_processing
+      - queue_catalog
+
+volumes:
+  mongo-data:
